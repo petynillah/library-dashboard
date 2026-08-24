@@ -6,7 +6,7 @@ function Navbar(){
 
     const handleLogout = () => {
         localStorage.removeItem('jwtToken');
-        window.location.href = '/login/stafflogin';
+        window.location.href = `${APP_URLS.login}/login/stafflogin`;
     };
 
     return(
