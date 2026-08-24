@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import logo from '../assets/logo.jpg'
+import { APP_URLS } from '../Appurl';
 
 function Navbar(){
 
@@ -14,7 +15,7 @@ function Navbar(){
         <img src={logo} alt='logo'></img>
             <div className='list'>
                 <ul>
-                    <li><a href="/login/staffdash">home</a></li>
+                    <li><a href={`${APP_URLS.login}/login/staffdash`}>home</a></li>
                     <li><Link to="/bookdash">Books</Link></li>
                     <li><Link to="/addcategory"> Category</Link></li>
                     <li><Link to="/addshelf">Shelving</Link></li>
@@ -23,7 +24,7 @@ function Navbar(){
                 </ul>
             </div>
             <div className='set'>
-                <a href="/login/settings">Settings</a>
+                <a href={`${APP_URLS.login}/login/settings`}>Settings</a>
                 <button onClick={handleLogout} style={{ background: '#ff4d4d', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer', marginLeft: '10px' }}>
                     Logout
                 </button>
