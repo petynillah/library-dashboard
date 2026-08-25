@@ -1,7 +1,7 @@
-
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './App.css'
 import Navbar from './component/Navbar'
+import { AuthSyncGuard } from './component/AuthSyncGuard'
 import Bookd from './pages/Bookd'
 import Updateb from './pages/Updateb'
 import Availableb from './pages/Availableb'
@@ -21,14 +21,15 @@ import Shelveavail from './pages/Shelveavail'
 import Updateshelf from './pages/Updateshelf'
 
 function App() {
- 
   return (
     <>
-      <BrowserRouter basename='/dashboard/'>
+      <BrowserRouter>
       <div className='container'>
         <Navbar/>
         <div className='dashboard'>
           <Routes >
+            <Route element= {<AuthSyncGuard/>}/>
+            {/* === CATEGORY 1: STANDARD ROOT PATHS === */}
             <Route path='/bookdash' element={<Bookd/>}/>
             <Route path='/updatebook' element={<Updateb/>}/>
             <Route path='/availablebk' element={<Availableb/>}/>
@@ -46,6 +47,29 @@ function App() {
             <Route path='/allstudents' element={<Allstudents/>}/>
             <Route path='/addstudent' element={<Addstudent/>}/>
             <Route path='/updatestudent/:id' element={<Updatestudent/>}/>
+
+            {/* === CATEGORY 2: DASHBOARD SUB-FOLDER FALLBACKS === */}
+            {/* These guarantee matching safety if Vercel includes the sub-path folder */}
+            <Route path='/dashboard/bookdash' element={<Bookd/>}/>
+            <Route path='/dashboard/updatebook' element={<Updateb/>}/>
+            <Route path='/dashboard/availablebk' element={<Availableb/>}/>
+            <Route path='/dashboard/addbook' element={<Addb/>}/>
+            <Route path='/dashboard/addcategory' element={<Categoryadd/>}/>
+            <Route path='/dashboard/updatecat/:category_id' element={<Updatecat/>}/>
+            <Route path='/dashboard/allcat' element={<Allcat/>}/>
+            <Route path='/dashboard/borrowbook' element={<Borrowb/>}/>
+            <Route path='/dashboard/returnborrow' element={<Returnborr/>}/>
+            <Route path='/dashboard/borrowedbook' element={<Borrowedb/>}/>
+            <Route path='/dashboard/shelfavailable' element={<Shelveavail/>}/>
+            <Route path='/dashboard/addshelf' element={<Addshelf/>}/>
+            <Route path='/dashboard/updateshelf/:shelf_number' element={<Updateshelf/>}/>
+            <Route path='/dashboard/studentdash' element={<Student/>}/>
+            <Route path='/dashboard/allstudents' element={<Allstudents/>}/>
+            <Route path='/dashboard/addstudent' element={<Addstudent/>}/>
+            <Route path='/dashboard/updatestudent/:id' element={<Updatestudent/>}/>
+            
+            {/* Global Diagnostic Catch-All */}
+            <Route path="*" element={<div style={{ padding: '30px', color: 'red' }}>⚠️ Error: Target Sub-Route Location Missing.</div>} />
           </Routes>
           </div>
       </div>

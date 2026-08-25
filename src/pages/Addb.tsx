@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { BookData } from '../types';
 import { Link } from 'react-router-dom';
+import api from '../api'; // Import your pre-configured centralized Axios instance
 
 function Addb(): React.JSX.Element {
   const [formData, setFormData] = useState<BookData>({
@@ -12,66 +13,55 @@ function Addb(): React.JSX.Element {
     sub_category: ''
   });
 
+  const [submitting, setSubmitting] = useState<boolean>(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
- const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
-  e.preventDefault();
-  const token = localStorage.getItem('jwtToken');
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
+    e.preventDefault();
+    setSubmitting(true);
 
-  // Guard clause if token is missing entirely
-  if (!token) {
-    alert("Authentication token missing. Please log out and log back in.");
-    return;
-  }
+    // Format and trim data safely for database submission
+    const payload = {
+      book_title: formData.book_title?.trim(),
+      author: formData.author?.trim(),
+      isbn_number: formData.isbn_number?.trim(),
+      category: formData.category?.trim(),
+      reading_level: formData.reading_level?.trim(),
+      sub_category: formData.sub_category?.trim() || null
+    };
 
-  // Format data safely for database entry
-  const payload = {
-  book_title: formData.book_title?.trim(),
-  author: formData.author?.trim(),
-  isbn_number: formData.isbn_number?.trim(),
-  category: formData.category?.trim(),
-  reading_level: formData.reading_level?.trim(),
-  sub_category: formData.sub_category?.trim() || null
-};
+    try {
+      // FIXED: Swapped raw fetch out for your global Axios client instance
+      // Note: No manual authorization headers or stringify formatting needed!
+      const response = await api.post('/book/add', payload);
 
-
-  try {
-    const response = await fetch('/api/book/add', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}` // Sends authorization header just like your backend expects
-      },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      alert(data.message || 'Book added to library database successfully!');
+      // Axios automatically parses JSON payloads into response.data
+      alert(response.data?.message || 'Book added to library database successfully!');
       
-      // Clear form inputs for the next entry
+      // Clear form inputs for the next catalog entry
       setFormData({
         book_title: '', author: '', isbn_number: '', category: '', reading_level: '', sub_category: ''
       });
-    } else {
-      // Backend caught an error or rejected due to a bad token
-      alert(`Database Error: ${data.error || data.message || 'Failed to insert book records.'}`);
+    } catch (error: any) {
+      console.error('API submission failed:', error);
+      
+      // Capture detailed error responses sent back from the Express backend
+      const serverMessage = error.response?.data?.message || error.response?.data?.error;
+      alert(`Database Error: ${serverMessage || 'Could not save book record.'}`);
+    } finally {
+      setSubmitting(false);
     }
-  } catch (error) {
-    console.error('Network request failed:', error);
-    alert('Could not reach the server. Please verify your backend server is running on port 8080.');
-  }
-};
+  };
 
   return (
     <div>
       <h1 className="head1">Book Dashboard</h1>
       <div className="roam">              
-              <Link to="/availablebk" >Show all books</Link>
-            </div>
+        <Link to="/availablebk">Show all books</Link>
+      </div>
       <h2 className="head2">Add Book</h2>
       <form className="form" onSubmit={handleSubmit}>
         <div className="form-row">
@@ -99,7 +89,9 @@ function Addb(): React.JSX.Element {
           <input type="text" name="sub_category" value={formData.sub_category} onChange={handleChange} />
         </div>
         <div className="button">
-          <button type="submit">Add book</button>
+          <button type="submit" disabled={submitting}>
+            {submitting ? 'Adding book...' : 'Add book'}
+          </button>
         </div>
       </form>
     </div>
