@@ -1,8 +1,7 @@
 {
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/dashboard/assets/:path*", "destination": "/assets/:path*" },
-    { "source": "/dashboard/:path*", "destination": "/index.html" },
-    { "source": "/dashboard", "destination": "/index.html" }
+    { "source": "/(.*)", "destination": "/index.html" }
+    
   ]
 }
