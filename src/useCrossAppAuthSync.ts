@@ -1,56 +1,56 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 
 /**
- * Custom React Hook to safely execute cross-app authorization 
- * token hand-offs between domain-isolated Vercel systems.
+ * Custom React Hook to execute secure cross-app authorization token hand-offs.
+ * Instantly extracts, caches, and permanently purges tokens from the visible address bar.
  */
 export function useCrossAppAuthSync(): boolean {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation(); // Captures the current structural path name (e.g., /borrowbook)
   
-  // Local state flag to signal to Layout Guards that localStorage is synced and safe
   const [isAuthReady, setIsAuthReady] = useState<boolean>(false);
 
   useEffect(() => {
-    // 1. Scan the active URL parameters for an incoming hand-off token string
+    // 1. Grab the token passed over from the Staff Login app domain
     const tokenFromUrl = searchParams.get('token');
     
     if (tokenFromUrl) {
       try {
-        // 2. Clone it safely into this application's domain-isolated storage vault
+        // 2. Clone it securely inside this application's domain-isolated localStorage vault
         localStorage.setItem('jwtToken', decodeURIComponent(tokenFromUrl));
         
-        // 3. Remove the token parameters from our query dictionary tracking list
+        // 3. Delete the token payload key out of our query parameter dictionary list
         searchParams.delete('token');
         
-        // 4. Instantly strip the sensitive token out of the visible browser address bar
-        // Changes /bookdash?token=ey... back to /bookdash smoothly without a full page reload!
-        navigate(
-          {
-            pathname: window.location.pathname,
-            search: searchParams.toString(),
-          },
-          { replace: true }
-        );
+        // 4. THE ABSOLUTE SECURITY PURGE METHOD:
+        // Re-construct the exact current view pathway without appending the token parameter string
+        const remainingQueryParameters = searchParams.toString();
+        const cleanDestinationUrl = `${location.pathname}${
+          remainingQueryParameters ? `?${remainingQueryParameters}` : ''
+        }`;
+
+        // Force React Router to push a history state override.
+        // This instantly rewrites the address bar to a clean string parameter path layout!
+        // Changes /borrowbook?token=ey... to just /borrowbook in less than a millisecond!
+        navigate(cleanDestinationUrl, { replace: true });
         
-        // Signal that token hand-off synchronization completed successfully
         setIsAuthReady(true);
       } catch (error) {
-        console.error("Critical: Failed to save or decode cross-app parameter token payload:", error);
+        console.error("Critical: Failed to save or wipe cross-app token parameter payload:", error);
         setIsAuthReady(false);
       }
     } else {
-      // 5. FALLBACK GATE: If no token is in the URL, verify if a session already exists locally
+      // 5. FALLBACK GATEWAY: If no token exists in the URL, confirm if a local cache remains valid
       const existingToken = localStorage.getItem('jwtToken');
       if (existingToken) {
         setIsAuthReady(true);
       } else {
-        // No session token located anywhere. Let the layout know sync state is unresolved
         setIsAuthReady(false);
       }
     }
-  }, [searchParams, navigate]);
+  }, [searchParams, navigate, location.pathname]);
 
   return isAuthReady;
 }
