@@ -12,7 +12,7 @@ if (!API_BASE_URL) {
 }
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: import.meta.env.VITE_API_BASE || "https://library-api.onrender.com",
   headers: { 'Content-Type': 'application/json' },
 });
 

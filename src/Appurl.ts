@@ -1,5 +1,10 @@
 // src/config/appUrls.ts
-export const APP_URLS = {
+
+// 1. Export the API URL string directly as APP_URLS
+export const APP_URLS = import.meta.env.VITE_API_BASE || 'https://onrender.com';
+
+// 2. Keep the other dashboard links accessible under a different name if needed
+export const DASHBOARD_URLS = {
   mainDashboard: import.meta.env.VITE_MAIN_DASHBOARD_URL || 'http://localhost/main',
   login: import.meta.env.VITE_LOGIN_APP_URL || 'http://localhost/login',
   staffDashboard: import.meta.env.VITE_DASHBOARD_APP_URL || 'http://localhost/dashboard',
