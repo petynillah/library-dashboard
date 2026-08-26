@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom'
 import logo from '../assets/logo.jpg'
-import { APP_URLS } from '../Appurl';
+import { DASHBOARD_URLS } from '../Appurl';
 
 function Navbar(){
 
     const handleLogout = () => {
         localStorage.removeItem('jwtToken');
-        window.location.href = `${APP_URLS.login}/login/stafflogin`;
+        window.location.href = `${DASHBOARD_URLS.login}/login/stafflogin`;
     };
 
     return(
@@ -15,7 +15,7 @@ function Navbar(){
         <img src={logo} alt='logo'></img>
             <div className='list'>
                 <ul>
-                    <li><a href={`${APP_URLS.login}/login/staffdash`}>home</a></li>
+                    <li><a href={`${DASHBOARD_URLS.login}/login/staffdash`}>home</a></li>
                     <li><Link to="/bookdash">Books</Link></li>
                     <li><Link to="/addcategory"> Category</Link></li>
                     <li><Link to="/addshelf">Shelving</Link></li>
@@ -24,7 +24,7 @@ function Navbar(){
                 </ul>
             </div>
             <div className='set'>
-                <a href={`${APP_URLS.login}/login/settings`}>Settings</a>
+                <a href={`${DASHBOARD_URLS.login}/login/settings`}>Settings</a>
                 <button onClick={handleLogout} style={{ background: '#ff4d4d', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer', marginLeft: '10px' }}>
                     Logout
                 </button>

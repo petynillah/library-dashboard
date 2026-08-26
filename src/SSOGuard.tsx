@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams, Outlet } from 'react-router-dom'; // 👈 1. Added Outlet here
+import { useSearchParams, Outlet } from 'react-router-dom'; // 👈 1. Added Outlet here
 
 // 👈 2. REMOVED the children interface completely
 
 function SSOGuard(): React.JSX.Element { // 👈 3. REMOVED { children } from here
   const [searchParams, setSearchParams] = useSearchParams();
   const [isVerifying, setIsVerifying] = useState<boolean>(true);
-  const navigate = useNavigate();
+  
 
   useEffect(() => {
     const ticket = searchParams.get('ticket');
