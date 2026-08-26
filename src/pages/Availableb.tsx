@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import type { BookData } from '../types';
 import { Link } from 'react-router-dom';
-import { API_BASE } from '../config';
+import axios from 'axios'; // 1. Added Axios import
+import { APP_URLS } from '../Appurl'; // 2. Added APP_URLS base string
 
 function Availableb(): React.JSX.Element {
   const [books, setBooks] = useState<BookData[]>([]);
@@ -10,16 +11,20 @@ function Availableb(): React.JSX.Element {
   const fetchBooks = async (search: string = ''): Promise<void> => {
     const token = localStorage.getItem('jwtToken');
     try {
-      // TAILORED: Routed to /api/books to map directly to the backend's query logic
-      const response = await fetch(`${API_BASE}/api/book/all?search=${encodeURIComponent(search)}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const data: BookData[] = await response.json();
-        setBooks(data);
-      }
+      // 3. Converted fetch to Axios GET using APP_URLS and added missing leading slash
+      const response = await axios.get<BookData[]>(
+        `${APP_URLS}/api/book/all?search=${encodeURIComponent(search)}`, 
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+
+      // Safeguard: Ensure the parsed dataset evaluates as a flat array
+      setBooks(Array.isArray(response.data) ? response.data : []);
+      
     } catch (error) {
       console.error('Failed to load books:', error);
+      setBooks([]); // Set empty array on failure so .map() doesn't crash
     }
   };
 
@@ -36,20 +41,24 @@ function Availableb(): React.JSX.Element {
     if (!window.confirm("Are you sure you want to delete this book?")) return;
     const token = localStorage.getItem('jwtToken');
     try {
-      // TAILORED: Corrected port to 8080 and URL mapping to match backend model parameter
-      const response = await fetch(`${API_BASE}/api/book/delete/${isbn}`, {
-        method: 'DELETE',
+      // 4. Converted fetch to Axios DELETE using APP_URLS base path
+      const response = await axios.delete(`${APP_URLS}/api/book/delete/${isbn}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      if (response.ok) {
-        alert("Book deleted");
-        fetchBooks(searchQuery); 
-      } else {
-        const data = await response.json();
-        alert(`Error: ${data.error || data.message || 'Unauthorized delete request'}`);
-      }
-    } catch (error) {
+
+      alert(response.data?.message || "Book deleted");
+      fetchBooks(searchQuery); 
+
+    } catch (error: unknown) {
       console.error('Delete failed:', error);
+      
+      // 5. Handle Axios specific error payload mapping
+      if (axios.isAxiosError(error)) {
+        const serverMessage = error.response?.data?.error || error.response?.data?.message;
+        alert(`Error: ${serverMessage || 'Unauthorized delete request'}`);
+      } else {
+        alert("An unexpected network anomaly stopped the request.");
+      }
     }
   };
 
@@ -57,9 +66,8 @@ function Availableb(): React.JSX.Element {
     <>
       <h1 className="head1">Book Dashboard</h1>
       <div className="roam">
-              {/* Uniformly scales navigation parameters to match system routing structures */}
-              <Link to='/addbook'>add book</Link>
-            </div>
+        <Link to='/addbook'>add book</Link>
+      </div>
       <div className="search">
         <form className="search-bar" onSubmit={handleSearchSubmit}>
           <label>Search for a book</label>
@@ -81,19 +89,27 @@ function Availableb(): React.JSX.Element {
             </tr>
           </thead>
           <tbody>
-            {books.map((book) => (
-              <tr key={book.isbn_number}>
-                <td>{book.book_title}</td>
-                <td>{book.author}</td>
-                <td>{book.isbn_number}</td>
-                <td>{book.category}</td>
-                <td>{book.sub_category || '-'}</td>
-                <td className="status">
-                  <button onClick={() => handleDelete(book.isbn_number)} className="linkb">Delete</button>
-                  <Link to={`/updatebook?isbn=${book.isbn_number}`}><button className="linkb">Update</button></Link>
+            {books.length === 0 ? (
+              <tr>
+                <td colSpan={6} style={{ textAlign: "center", padding: "20px" }}>
+                  No available book listings found.
                 </td>
               </tr>
-            ))}
+            ) : (
+              books.map((book) => (
+                <tr key={book.isbn_number}>
+                  <td>{book.book_title}</td>
+                  <td>{book.author}</td>
+                  <td>{book.isbn_number}</td>
+                  <td>{book.category}</td>
+                  <td>{book.sub_category || '-'}</td>
+                  <td className="status">
+                    <button onClick={() => handleDelete(book.isbn_number)} className="linkb">Delete</button>
+                    <Link to={`/updatebook?isbn=${book.isbn_number}`}><button className="linkb">Update</button></Link>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

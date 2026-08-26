@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { APP_URLS } from '../Appurl';
+import axios from 'axios'; // 1. Added Axios import
+import { APP_URLS } from '../Appurl'; // 2. Added APP_URLS import (adjust path if needed)
 
 // Define explicit local types in line with your standard practices
 interface StudentData {
@@ -22,6 +23,7 @@ function Addstudent(): React.JSX.Element {
     password: ''
   });
 
+  // Fixed type to support target mapping correctly
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -36,7 +38,6 @@ function Addstudent(): React.JSX.Element {
     }
 
     // Mapped to the backend's expected snake_case field names
-    // (education_level / institution_name), not the frontend's camelCase state keys.
     const payload = {
       name: formData.name?.trim(),
       gender: formData.gender?.trim(),
@@ -47,26 +48,28 @@ function Addstudent(): React.JSX.Element {
     };
 
     try {
-      const response = await fetch(`${APP_URLS}/api/student/register`, {
-        method: 'POST',
+      // 3. Converted native fetch to an Axios POST call using APP_URLS string
+      const response = await axios.post(`${APP_URLS}/api/student/register`, payload, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
+        }
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        alert(data.message || 'Student added to database successfully!');
-        setFormData({ name: '', gender: '', age: '', educationLevel: '', institution: '', password: '' });
-      } else {
-        alert(`Database Error: ${data.error || data.message || 'Failed to insert student records.'}`);
-      }
-    } catch (error) {
+      // 4. Axios automatically parses JSON, data is found directly on response.data
+      alert(response.data?.message || 'Student added to database successfully!');
+      setFormData({ name: '', gender: '', age: '', educationLevel: '', institution: '', password: '' });
+      
+    } catch (error: unknown) {
       console.error('Network request failed:', error);
-      alert('Could not reach the server. Please verify your backend server is running.');
+      
+      // 5. Handle Axios specific error responses safely
+      if (axios.isAxiosError(error)) {
+        const serverMessage = error.response?.data?.error || error.response?.data?.message;
+        alert(`Database Error: ${serverMessage || 'Failed to insert student records.'}`);
+      } else {
+        alert('Could not reach the server. Please verify your backend server is running.');
+      }
     }
   };
 

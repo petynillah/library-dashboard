@@ -25,7 +25,6 @@ function Addshelf(): React.JSX.Element {
   const [loadingCategories, setLoadingCategories] = useState<boolean>(true);
 
   // book_category must match an existing category_subject, so pull the live list
-  // rather than letting the user free-type something that won't validate server-side.
   useEffect(() => {
     const fetchCategories = async (): Promise<void> => {
       const token = localStorage.getItem("jwtToken");
@@ -33,13 +32,19 @@ function Addshelf(): React.JSX.Element {
         const response = await axios.get<CategoryOption[]>(`${APP_URLS}/api/categories`, {
           headers: { Authorization: `Bearer ${token}` }
         });
+
+        // SAFEGUARD: Ensure data is an array before executing filtering methods
+        const rawData = response.data;
+        const dataArray = Array.isArray(rawData) ? rawData : [];
+
         // De-duplicate by category_subject in case multiple rows share a subject
         const seen = new Set<string>();
-        const unique = response.data.filter((cat) => {
-          if (seen.has(cat.category_subject)) return false;
+        const unique = dataArray.filter((cat) => {
+          if (!cat.category_subject || seen.has(cat.category_subject)) return false;
           seen.add(cat.category_subject);
           return true;
         });
+        
         setCategoryOptions(unique);
       } catch (err: unknown) {
         console.error("Error fetching category subjects:", err);
@@ -60,7 +65,6 @@ function Addshelf(): React.JSX.Element {
     e.preventDefault();
     const token = localStorage.getItem("jwtToken");
     try {
-      // shelf_number is a normalized string identifier (e.g. "A1"), not a numeric id — send as-is
       const response = await axios.post(`${APP_URLS}/api/shelves`, formData, {
         headers: { Authorization: `Bearer ${token}` }
       });

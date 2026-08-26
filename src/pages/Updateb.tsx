@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom'; 
 import type { BookData } from '../types'; 
 import { APP_URLS } from '../Appurl';
+import axios from 'axios'; // 1. Added Axios import
 
 function Updateb(): React.JSX.Element { 
   const [searchParams] = useSearchParams(); 
@@ -17,35 +18,31 @@ function Updateb(): React.JSX.Element {
     sub_category: '' 
   }); 
 
-  // FIX 1: Use GET instead of PUT on component mount to securely load the existing details
+  // Use GET on component mount to load the existing details
   useEffect(() => { 
     if (!isbnParam) return; 
 
     const fetchBookDetails = async (): Promise<void> => { 
       const token = localStorage.getItem('jwtToken'); 
       try { 
-        // Note the change to /api/book/details or your correct GET endpoint
-        const response = await fetch(`${APP_URLS}/api/book/details/${encodeURIComponent(isbnParam)}`, { 
-          method: 'GET', 
+        // 2. Converted native fetch to Axios GET
+        const response = await axios.get(`${APP_URLS}/api/book/details/${encodeURIComponent(isbnParam)}`, { 
           headers: { 
             'Authorization': `Bearer ${token}` 
           }
         }); 
 
-        if (response.ok) { 
-          const data = await response.json(); 
-          
-          // FIX 2: Safely handles both single object and wrapper array/object returns
-          const targetBook = Array.isArray(data) 
-            ? data.find(b => b.isbn_number === isbnParam) 
-            : (data.book || data.data || data);
+        // Axios natively parses JSON data into response.data
+        const rawData = response.data; 
+        
+        // Safely handles both single object and wrapper array/object returns
+        const targetBook = Array.isArray(rawData) 
+          ? rawData.find(b => b.isbn_number === isbnParam) 
+          : (rawData.book || rawData.data || rawData);
 
-          if (targetBook) { 
-            setFormData(targetBook); 
-          } 
-        } else {
-          console.error('Server responded with an error status');
-        }
+        if (targetBook) { 
+          setFormData(targetBook); 
+        } 
       } catch (error) { 
         console.error('Failed to load book data:', error); 
       } 
@@ -62,24 +59,26 @@ function Updateb(): React.JSX.Element {
     e.preventDefault(); 
     const token = localStorage.getItem('jwtToken'); 
     try { 
-      const response = await fetch(`${APP_URLS}/api/book/update/${encodeURIComponent(isbnParam)}`, { 
-        method: 'PUT', 
+      // 3. Converted native fetch to Axios PUT
+      const response = await axios.put(`${APP_URLS}/api/book/update/${encodeURIComponent(isbnParam)}`, formData, { 
         headers: { 
           'Content-Type': 'application/json', 
           'Authorization': `Bearer ${token}` 
-        }, 
-        body: JSON.stringify(formData) 
+        }
       }); 
 
-      const data = await response.json(); 
-      if (response.ok) { 
-        alert(data.message || "Book updated successfully!"); 
-        navigate('/availablebk'); 
-      } else { 
-        alert(`Error: ${data.error || data.message || 'Failed to update'}`); 
-      } 
-    } catch (error) { 
+      alert(response.data?.message || "Book updated successfully!"); 
+      navigate('/availablebk'); 
+    } catch (error: unknown) { 
       console.error('Update request failed:', error); 
+      
+      // Axios error data validation mapping
+      if (axios.isAxiosError(error)) {
+        const serverMessage = error.response?.data?.error || error.response?.data?.message;
+        alert(`Error: ${serverMessage || 'Failed to update'}`);
+      } else {
+        alert("An unexpected network exception occurred.");
+      }
     } 
   }; 
 
@@ -89,22 +88,24 @@ function Updateb(): React.JSX.Element {
 
     const token = localStorage.getItem('jwtToken'); 
     try { 
-      const response = await fetch(`${APP_URLS}/api/book/delete/${encodeURIComponent(isbnParam)}`, { 
-        method: 'DELETE', 
+      // 4. Converted native fetch to Axios DELETE
+      const response = await axios.delete(`${APP_URLS}/api/book/delete/${encodeURIComponent(isbnParam)}`, { 
         headers: { 
           'Authorization': `Bearer ${token}` 
         } 
       }); 
 
-      if (response.ok) { 
-        alert("Book successfully removed."); 
-        navigate('/availablebk'); 
-      } else { 
-        const data = await response.json(); 
-        alert(`Error: ${data.error || data.message || 'Failed to delete'}`); 
-      } 
-    } catch (error) { 
+      alert(response.data?.message || "Book successfully removed."); 
+      navigate('/availablebk'); 
+    } catch (error: unknown) { 
       console.error('Delete request failed:', error); 
+      
+      if (axios.isAxiosError(error)) {
+        const serverMessage = error.response?.data?.error || error.response?.data?.message;
+        alert(`Error: ${serverMessage || 'Failed to delete'}`);
+      } else {
+        alert("An unexpected network exception occurred.");
+      }
     } 
   }; 
 
