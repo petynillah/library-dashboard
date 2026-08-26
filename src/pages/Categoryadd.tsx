@@ -48,7 +48,7 @@ function Categoryadd(): React.JSX.Element {
     }
 
     try {
-      const response = await axios.post("/api/categories", formData, {
+      const response = await axios.post(`/api/categories`, formData, {
         headers: { 
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json"

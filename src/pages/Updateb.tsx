@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'; 
 import { useSearchParams, useNavigate } from 'react-router-dom'; 
 import type { BookData } from '../types'; 
+import { APP_URLS } from '../Appurl';
 
 function Updateb(): React.JSX.Element { 
   const [searchParams] = useSearchParams(); 
@@ -24,7 +25,7 @@ function Updateb(): React.JSX.Element {
       const token = localStorage.getItem('jwtToken'); 
       try { 
         // Note the change to /api/book/details or your correct GET endpoint
-        const response = await fetch(`/api/book/details/${encodeURIComponent(isbnParam)}`, { 
+        const response = await fetch(`${APP_URLS}/api/book/details/${encodeURIComponent(isbnParam)}`, { 
           method: 'GET', 
           headers: { 
             'Authorization': `Bearer ${token}` 
@@ -61,7 +62,7 @@ function Updateb(): React.JSX.Element {
     e.preventDefault(); 
     const token = localStorage.getItem('jwtToken'); 
     try { 
-      const response = await fetch(`/api/book/update/${encodeURIComponent(isbnParam)}`, { 
+      const response = await fetch(`${APP_URLS}/api/book/update/${encodeURIComponent(isbnParam)}`, { 
         method: 'PUT', 
         headers: { 
           'Content-Type': 'application/json', 
@@ -88,7 +89,7 @@ function Updateb(): React.JSX.Element {
 
     const token = localStorage.getItem('jwtToken'); 
     try { 
-      const response = await fetch(`/api/book/delete/${encodeURIComponent(isbnParam)}`, { 
+      const response = await fetch(`${APP_URLS}/api/book/delete/${encodeURIComponent(isbnParam)}`, { 
         method: 'DELETE', 
         headers: { 
           'Authorization': `Bearer ${token}` 

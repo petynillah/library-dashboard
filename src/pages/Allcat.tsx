@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { MdDelete, MdSecurityUpdate } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { APP_URLS } from "../Appurl";
 
 // ==========================================
 // TYPESCRIPT SCHEMAS & INTERFACES
@@ -48,7 +49,7 @@ function Allcat(): React.JSX.Element {
     if (!window.confirm(`Are you sure you want to delete "${label}"?`)) return;
     const token = localStorage.getItem("jwtToken");
     try {
-      const response = await axios.delete(`/api/categories/${categoryId}`, {
+      const response = await axios.delete(`${APP_URLS}/api/categories/${categoryId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert(response.data?.message || "Category removed successfully.");

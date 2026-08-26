@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { IoAddCircleOutline } from "react-icons/io5";
 import axios from "axios";
+import { APP_URLS } from "../Appurl";
 
 interface UpdateShelfForm {
   shelf_number: string;
@@ -31,7 +32,7 @@ function Updateshelf(): React.JSX.Element {
     const fetchCategories = async (): Promise<void> => {
       const token = localStorage.getItem("jwtToken");
       try {
-        const response = await axios.get<CategoryOption[]>("/api/categories", {
+        const response = await axios.get<CategoryOption[]>(`${APP_URLS}/api/categories`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const seen = new Set<string>();
@@ -55,7 +56,7 @@ function Updateshelf(): React.JSX.Element {
       const token = localStorage.getItem("jwtToken");
       try {
         setLoading(true);
-        const response = await axios.get(`/api/shelves/${encodeURIComponent(shelf_number || '')}`, {
+        const response = await axios.get(`${APP_URLS}/api/shelves/${encodeURIComponent(shelf_number || '')}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setFormData({
@@ -85,7 +86,7 @@ function Updateshelf(): React.JSX.Element {
     const token = localStorage.getItem("jwtToken");
     try {
       // shelf_number in the URL stays the lookup key; formData.shelf_number carries the (possibly renamed) value
-      const response = await axios.put(`/api/shelves/${encodeURIComponent(shelf_number || '')}`, formData, {
+      const response = await axios.put(`${APP_URLS}/api/shelves/${encodeURIComponent(shelf_number || '')}`, formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert(response.data.message || "Shelf reconfigured successfully.");

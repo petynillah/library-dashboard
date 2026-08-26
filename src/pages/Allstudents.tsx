@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { MdDelete, MdSecurityUpdate } from "react-icons/md";
 import { Link } from "react-router-dom";
+import { APP_URLS } from "../Appurl";
 
 // Full set of fields your backend returns for a student (password is excluded server-side)
 interface Student {
@@ -28,7 +29,7 @@ function Allstudents(): React.JSX.Element {
     }
 
     try {
-      const response = await fetch(`/api/student/all?search=${encodeURIComponent(query)}`, {
+      const response = await fetch(`${APP_URLS}/api/student/all?search=${encodeURIComponent(query)}`, {
         method: 'GET',
         headers: { 
           'Authorization': `Bearer ${token}` 
@@ -73,7 +74,7 @@ function Allstudents(): React.JSX.Element {
     }
 
     try {
-      const response = await fetch(`/api/student/${id}`, {
+      const response = await fetch(`${APP_URLS}/api/student/${id}`, {
         method: 'DELETE',
         headers: { 
           'Authorization': `Bearer ${token}` 

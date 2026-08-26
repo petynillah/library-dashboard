@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'; 
 import { Link, useLocation } from 'react-router-dom';
 import type { ReturnFormData } from '../types'; 
+import { APP_URLS } from '../Appurl';
 
 interface ActiveLoan {
   student_id: string;
@@ -49,7 +50,7 @@ function Returnborr(): React.JSX.Element {
     setActiveLoans([]);
 
     try { 
-      const response = await fetch(`/api/book/borrowed/${encodeURIComponent(searchId)}`, { 
+      const response = await fetch(`${APP_URLS}/api/book/borrowed/${encodeURIComponent(searchId)}`, { 
         headers: { 'Authorization': `Bearer ${token}` } 
       }); 
       const data = await response.json(); 
@@ -96,7 +97,7 @@ function Returnborr(): React.JSX.Element {
       return;
     }
     try { 
-      const response = await fetch('/api/book/borrowed/return', { 
+      const response = await fetch(`${APP_URLS}/api/book/borrowed/return`, { 
         method: 'POST', 
         headers: { 
           'Content-Type': 'application/json', 

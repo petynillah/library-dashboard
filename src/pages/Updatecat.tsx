@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
+import { APP_URLS } from "../Appurl";
 
 // ==========================================
 // TYPESCRIPT SCHEMAS & INTERFACES
@@ -49,7 +50,7 @@ function Updatecat(): React.JSX.Element {
           throw new Error("Routing parameter mapping validation failed.");
         }
 
-        const response = await axios.get(`/api/categories/${category_id}`, {
+        const response = await axios.get(`${APP_URLS}/api/categories/${category_id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -90,7 +91,7 @@ function Updatecat(): React.JSX.Element {
 
     try {
       const response = await axios.put(
-        `/api/categories/${category_id ?? ''}`, 
+        `${APP_URLS}/api/categories/${category_id ?? ''}`, 
         formData, 
         {
           headers: { 

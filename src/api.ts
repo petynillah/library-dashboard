@@ -1,7 +1,15 @@
 import axios from 'axios';
 
-// Pull from environment configuration hooks or default proxy parameters
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
+// No trailing fallback to a relative '/api' — if VITE_API_URL is missing,
+// fail loudly instead of silently hitting the wrong domain.
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
+if (!API_BASE_URL) {
+  console.error(
+    'VITE_API_URL is not set. Requests will fail. Set it in your .env file (local) ' +
+    'and in Vercel → Settings → Environment Variables (deployed).'
+  );
+}
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -38,7 +46,7 @@ api.interceptors.response.use(
       localStorage.removeItem('jwtToken');
       
       // Force user back to the primary login domain endpoint
-      window.location.href = 'https://vercel.app'; 
+      window.location.href = 'https://library-login.vercel.app/login/stafflogin'; 
     }
     return Promise.reject(error);
   }

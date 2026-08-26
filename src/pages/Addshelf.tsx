@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { IoAddCircleOutline } from "react-icons/io5";
 import axios from "axios";
+import { APP_URLS } from "../Appurl";
 
 interface ShelfForm {
   shelf_number: string;
@@ -29,7 +30,7 @@ function Addshelf(): React.JSX.Element {
     const fetchCategories = async (): Promise<void> => {
       const token = localStorage.getItem("jwtToken");
       try {
-        const response = await axios.get<CategoryOption[]>("/api/categories", {
+        const response = await axios.get<CategoryOption[]>(`${APP_URLS}/api/categories`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         // De-duplicate by category_subject in case multiple rows share a subject
@@ -60,7 +61,7 @@ function Addshelf(): React.JSX.Element {
     const token = localStorage.getItem("jwtToken");
     try {
       // shelf_number is a normalized string identifier (e.g. "A1"), not a numeric id — send as-is
-      const response = await axios.post("/api/shelves", formData, {
+      const response = await axios.post(`${APP_URLS}/api/shelves`, formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert(response.data.message || "Shelf added successfully!");

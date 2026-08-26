@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { BookData } from '../types';
 import { Link } from 'react-router-dom';
+import { API_BASE } from '../config';
 
 function Availableb(): React.JSX.Element {
   const [books, setBooks] = useState<BookData[]>([]);
@@ -10,7 +11,7 @@ function Availableb(): React.JSX.Element {
     const token = localStorage.getItem('jwtToken');
     try {
       // TAILORED: Routed to /api/books to map directly to the backend's query logic
-      const response = await fetch(`/api/book/all?search=${encodeURIComponent(search)}`, {
+      const response = await fetch(`${API_BASE}/api/book/all?search=${encodeURIComponent(search)}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -36,7 +37,7 @@ function Availableb(): React.JSX.Element {
     const token = localStorage.getItem('jwtToken');
     try {
       // TAILORED: Corrected port to 8080 and URL mapping to match backend model parameter
-      const response = await fetch(`/api/book/delete/${isbn}`, {
+      const response = await fetch(`${API_BASE}/api/book/delete/${isbn}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });

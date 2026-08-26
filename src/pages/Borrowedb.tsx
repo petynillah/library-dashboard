@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'; 
 import { Link, useNavigate } from 'react-router-dom';
 import type { BorrowedBookItem } from '../types'; 
+import { APP_URLS } from '../Appurl';
 
 function Borrowedb(): React.JSX.Element { 
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ function Borrowedb(): React.JSX.Element {
       const token = localStorage.getItem('jwtToken'); 
       try { 
         setLoading(true);
-        const response = await fetch('/api/book/borrowed', { 
+        const response = await fetch(`${APP_URLS}/api/book/borrowed`, { 
           headers: { 'Authorization': `Bearer ${token}` } 
         }); 
 

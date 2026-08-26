@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { APP_URLS } from '../Appurl';
 
 // Define explicit local types in line with your standard practices
 interface StudentData {
@@ -46,7 +47,7 @@ function Addstudent(): React.JSX.Element {
     };
 
     try {
-      const response = await fetch('/api/student/register', {
+      const response = await fetch(`${APP_URLS}/api/student/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
