@@ -2,7 +2,7 @@
 
 // 1. Export the API URL string directly as APP_URLS
 console.log("🔍 Checking VITE_API_BASE value:", import.meta.env.VITE_API_BASE);
-export const APP_URLS = import.meta.env.VITE_API_BASE || 'https://onrender.com';
+export const APP_URLS = 'https://library-backend-d1a4.onrender.com';
 
 // 2. Keep the other dashboard links accessible under a different name if needed
 export const DASHBOARD_URLS = {
