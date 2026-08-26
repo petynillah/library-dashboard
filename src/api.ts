@@ -2,6 +2,13 @@ import axios from 'axios';
 
 // No trailing fallback to a relative '/api' — if VITE_API_URL is missing,
 // fail loudly instead of silently hitting the wrong domain.
+
+// src/config/appUrls.ts
+
+console.log("🔍 Checking VITE_API_BASE value:", import.meta.env.VITE_API_BASE);
+
+export const APP_URLS = import.meta.env.VITE_API_BASE || 'https://onrender.com';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 if (!API_BASE_URL) {
