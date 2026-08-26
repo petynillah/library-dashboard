@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react'; 
 import { useSearchParams, useNavigate } from 'react-router-dom'; 
 import type { BookData } from '../types'; 
-import { APP_URLS } from '../Appurl';
 import axios from 'axios'; // 1. Added Axios import
+import api from '../api';
 
 function Updateb(): React.JSX.Element { 
   const [searchParams] = useSearchParams(); 
@@ -26,7 +26,7 @@ function Updateb(): React.JSX.Element {
       const token = localStorage.getItem('jwtToken'); 
       try { 
         // 2. Converted native fetch to Axios GET
-        const response = await axios.get(`${APP_URLS}/api/book/details/${encodeURIComponent(isbnParam)}`, { 
+        const response = await api.get(`/api/book/details/${encodeURIComponent(isbnParam)}`, { 
           headers: { 
             'Authorization': `Bearer ${token}` 
           }
@@ -60,7 +60,7 @@ function Updateb(): React.JSX.Element {
     const token = localStorage.getItem('jwtToken'); 
     try { 
       // 3. Converted native fetch to Axios PUT
-      const response = await axios.put(`${APP_URLS}/api/book/update/${encodeURIComponent(isbnParam)}`, formData, { 
+      const response = await api.put(`/api/book/update/${encodeURIComponent(isbnParam)}`, formData, { 
         headers: { 
           'Content-Type': 'application/json', 
           'Authorization': `Bearer ${token}` 
@@ -89,7 +89,7 @@ function Updateb(): React.JSX.Element {
     const token = localStorage.getItem('jwtToken'); 
     try { 
       // 4. Converted native fetch to Axios DELETE
-      const response = await axios.delete(`${APP_URLS}/api/book/delete/${encodeURIComponent(isbnParam)}`, { 
+      const response = await api.delete(`/api/book/delete/${encodeURIComponent(isbnParam)}`, { 
         headers: { 
           'Authorization': `Bearer ${token}` 
         } 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { BookData } from '../types';
 import { Link } from 'react-router-dom';
 import axios from 'axios'; // 1. Added Axios import
-import { APP_URLS } from '../Appurl'; // 2. Added APP_URLS base string
+import api from '../api' // 2. Added APP_URLS base string
 
 function Availableb(): React.JSX.Element {
   const [books, setBooks] = useState<BookData[]>([]);
@@ -12,8 +12,8 @@ function Availableb(): React.JSX.Element {
     const token = localStorage.getItem('jwtToken');
     try {
       // 3. Converted fetch to Axios GET using APP_URLS and added missing leading slash
-      const response = await axios.get<BookData[]>(
-        `${APP_URLS}/api/book/all?search=${encodeURIComponent(search)}`, 
+      const response = await api.get<BookData[]>(
+        `/api/book/all?search=${encodeURIComponent(search)}`, 
         {
           headers: { 'Authorization': `Bearer ${token}` }
         }
@@ -42,7 +42,7 @@ function Availableb(): React.JSX.Element {
     const token = localStorage.getItem('jwtToken');
     try {
       // 4. Converted fetch to Axios DELETE using APP_URLS base path
-      const response = await axios.delete(`${APP_URLS}/api/book/delete/${isbn}`, {
+      const response = await api.delete(`/api/book/delete/${isbn}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
