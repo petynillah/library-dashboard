@@ -4,33 +4,30 @@ import { Link } from 'react-router-dom';
 import axios from 'axios'; // 1. Added Axios import
 import api from '../api' // 2. Added APP_URLS base string
 
+
 function Availableb(): React.JSX.Element {
   const [books, setBooks] = useState<BookData[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const fetchBooks = async (search: string = ''): Promise<void> => {
-    const token = localStorage.getItem('jwtToken');
     try {
-      // 3. Converted fetch to Axios GET using APP_URLS and added missing leading slash
-      const response = await api.get<BookData[]>(
-        `/api/book/all?search=${encodeURIComponent(search)}`, 
-        {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }
-      );
+      // 2. USE THE API INSTANCE: 
+      // Replace "axios.get" or "fetch" with "api.get"
+      // Remove any manual authorization headers (the interceptor does it now!)
+      const response = await api.get(`/api/book/all?search=${encodeURIComponent(search)}`);
 
-      // Safeguard: Ensure the parsed dataset evaluates as a flat array
       setBooks(Array.isArray(response.data) ? response.data : []);
-      
     } catch (error) {
       console.error('Failed to load books:', error);
-      setBooks([]); // Set empty array on failure so .map() doesn't crash
+      setBooks([]);
     }
   };
 
   useEffect(() => {
     fetchBooks();
   }, []);
+
+  // ... keep the rest of your handleDelete and table markup code the exact same
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
