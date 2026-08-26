@@ -1,3 +1,4 @@
+import api from "./api"; // 1. Import your central interceptor instance instead of raw axios
 
 export interface BookData {
     book_title: string;
@@ -17,7 +18,6 @@ export interface BorrowData {
     borrow_date: string;
 }
 
-
 export interface ReturnFormData extends BorrowData {
     return_date: string;
 }
@@ -31,10 +31,8 @@ export interface BorrowedBookItem {
     category: string;
     sub_category: string;
     borrow_date: string;
-    return_date: string | null; // null means it hasn't been returned yet
+    return_date: string | null;
 }
-
-import axios from "axios";
 
 export interface CategoryForm {
   category_name: string;
@@ -42,32 +40,27 @@ export interface CategoryForm {
   category_subject: string;
 }
 
-// Automatically grabs token on demand to prevent stale state issues
-const getAuthHeaders = () => {
-  const token = localStorage.getItem("userToken");
-  return {
-    headers: {
-      Authorization: `Bearer ${token || ""}`,
-    },
-  };
-};
+// 2. Removed getAuthHeaders completely — the "api" request interceptor attaches the token automatically now!
 
 export const categoryService = {
-  // Fetch all categories for your "/dashboard/allcat" view
+  // Fetch all categories for your view
   getAll: async () => {
-    const response = await axios.get("/api/categories", getAuthHeaders());
+    // 3. Changed "axios" to "api"
+    const response = await api.get("/api/categories");
     return response.data;
   },
 
   // Create a new category
   create: async (data: CategoryForm) => {
-    const response = await axios.post("/api/categories", data, getAuthHeaders());
+    // 3. Changed "axios" to "api"
+    const response = await api.post("/api/categories", data);
     return response.data;
   },
 
   // Delete a category
   delete: async (id: string | number) => {
-    const response = await axios.delete(`/api/categories/${id}`, getAuthHeaders());
+    // 3. Changed "axios" to "api"
+    const response = await api.delete(`/api/categories/${id}`);
     return response.data;
   },
 };
