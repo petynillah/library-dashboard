@@ -1,11 +1,19 @@
-import axios from 'axios';
+import axios, {type AxiosInstance } from 'axios';
+
+// Extend the core instance interface to acknowledge the utility method safely
+interface CustomAxiosInstance extends AxiosInstance {
+  isAxiosError: typeof axios.isAxiosError;
+}
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: { 'Content-Type': 'application/json' },
-});
+}) as CustomAxiosInstance; // Cast here
+
+api.isAxiosError = axios.isAxiosError;
+
 
 /**
  * 🔒 REQUEST INTERCEPTOR:
@@ -64,7 +72,7 @@ export const getBooks = async (): Promise<ApiResponse> => {
 // Create a New Category Record
 export const addCategory = async (data: { name: string }): Promise<ApiResponse> => {
   try {
-    const response = await api.post('/category/add', data);
+    const response = await api.post('/categories', data); // was '/category/add'
     return { success: true, data: response.data };
   } catch (error: any) {
     return { success: false, message: error.response?.data?.error || 'Failed to establish category.' };

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'; 
 import { Link, useNavigate } from 'react-router-dom';
+import api from '../api';
 import type { BorrowedBookItem } from '../types'; 
 
 
@@ -11,29 +12,25 @@ function Borrowedb(): React.JSX.Element {
 
   useEffect(() => { 
     const fetchBorrowedBooks = async (): Promise<void> => { 
-      const token = localStorage.getItem('jwtToken'); 
       try { 
         setLoading(true);
-        const response = await fetch(`/book/borrowed`, { 
-          headers: { 'Authorization': `Bearer ${token}` } 
-        }); 
+        setError('');
+        
+        // Custom instance automatically implements baseUrl, tokens, and format transformations
+        const response = await api.get('/book/borrowed'); 
+        const data = response.data;
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          try {
-            const errorJson = JSON.parse(errorText);
-            throw new Error(errorJson.message || 'Failed to populate history');
-          } catch {
-            throw new Error(`Server returned error (${response.status}). Check network endpoints.`);
-          }
-        }
-
-        const data = await response.json(); 
         const actualList = Array.isArray(data) ? data : (data.data || data.history || []);
         setBorrowedBooks(actualList); 
-        setError('');
-      } catch (err: any) { 
-        setError(err.message); 
+      } catch (err: unknown) { 
+        console.error("Lending records loading error:", err);
+        if (api.isAxiosError(err)) {
+          setError(err.response?.data?.message || 'Failed to populate history records from server.');
+        } else if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError('An unexpected network anomaly occurred.');
+        }
       } finally {
         setLoading(false);
       }
@@ -70,7 +67,7 @@ function Borrowedb(): React.JSX.Element {
       
       <h2 className="head2">List of Borrowed Books</h2> 
       
-      {error && <p style={{ color: 'red', fontWeight: 'bold', textAlign: 'center' }}>{error}</p>} 
+      {error && <p style={{ color: 'red', fontWeight: 'bold', textAlign: 'center' }}>⚠️ {error}</p>} 
       
       <div className="table-part"> 
         <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '15px' }}> 

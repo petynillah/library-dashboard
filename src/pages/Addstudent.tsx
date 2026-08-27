@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios'; // 1. Added Axios import
-
+import api from '../api';
 
 // Define explicit local types in line with your standard practices
 interface StudentData {
@@ -31,12 +30,6 @@ function Addstudent(): React.JSX.Element {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
 
-    const token = localStorage.getItem('jwtToken');
-    if (!token) {
-      alert("Authentication token missing. Please log out and log back in.");
-      return;
-    }
-
     // Mapped to the backend's expected snake_case field names
     const payload = {
       name: formData.name?.trim(),
@@ -48,23 +41,18 @@ function Addstudent(): React.JSX.Element {
     };
 
     try {
-      // 3. Converted native fetch to an Axios POST call using APP_URLS string
-      const response = await axios.post(`/student/register`, payload, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      // Converted direct axios call to use the shared api instance
+      const response = await api.post(`/student/register`, payload);
 
-      // 4. Axios automatically parses JSON, data is found directly on response.data
+      // Axios automatically parses JSON, data is found directly on response.data
       alert(response.data?.message || 'Student added to database successfully!');
       setFormData({ name: '', gender: '', age: '', educationLevel: '', institution: '', password: '' });
       
     } catch (error: unknown) {
       console.error('Network request failed:', error);
       
-      // 5. Handle Axios specific error responses safely
-      if (axios.isAxiosError(error)) {
+      // Handle custom instance specific error responses safely
+      if (api.isAxiosError(error)) {
         const serverMessage = error.response?.data?.error || error.response?.data?.message;
         alert(`Database Error: ${serverMessage || 'Failed to insert student records.'}`);
       } else {

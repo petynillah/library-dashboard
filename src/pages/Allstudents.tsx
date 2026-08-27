@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { MdDelete, MdSecurityUpdate } from "react-icons/md";
 import { Link } from "react-router-dom";
-
+import api from "../api";
 
 // Full set of fields your backend returns for a student (password is excluded server-side)
 interface Student {
@@ -22,29 +22,16 @@ function Allstudents(): React.JSX.Element {
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const fetchStudents = async (query: string = ''): Promise<void> => {
-    const token = localStorage.getItem('jwtToken');
-    if (!token) {
-      alert("Authentication token missing. Please log out and log back in.");
-      return;
-    }
-
     try {
-      const response = await fetch(`/student/all?search=${encodeURIComponent(query)}`, {
-        method: 'GET',
-        headers: { 
-          'Authorization': `Bearer ${token}` 
-        }
-      });
-      const data = await response.json();
-      
-      if (response.ok) {
-        setStudents(data.data || []);
-      } else {
-        alert(`Database Error: ${data.error || data.message || 'Failed to fetch student list.'}`);
-      }
-    } catch (error) {
+      const response = await api.get(`/student/all?search=${encodeURIComponent(query)}`);
+      setStudents(response.data?.data || []);
+    } catch (error: unknown) {
       console.error('Network request failed:', error);
-      alert('Could not reach the server. Please verify your backend server is running.');
+      if (api.isAxiosError(error)) {
+        alert(`Database Error: ${error.response?.data?.error || error.response?.data?.message || 'Failed to fetch student list.'}`);
+      } else {
+        alert('Could not reach the server. Please verify your backend server is running.');
+      }
     }
   };
 
@@ -66,31 +53,18 @@ function Allstudents(): React.JSX.Element {
 
   const handleDelete = async (id: string): Promise<void> => {
     if (!window.confirm("Are you sure you want to delete this student file?")) return;
-    
-    const token = localStorage.getItem('jwtToken');
-    if (!token) {
-      alert("Authentication token missing.");
-      return;
-    }
 
     try {
-      const response = await fetch(`/student/${id}`, {
-        method: 'DELETE',
-        headers: { 
-          'Authorization': `Bearer ${token}` 
-        }
-      });
-      const data = await response.json();
-
-      if (response.ok) {
-        alert(data.message || "Student profile deleted successfully.");
-        setStudents(students.filter(student => student.id !== id));
-      } else {
-        alert(`Deletion Error: ${data.error || data.message || 'Failed to delete record.'}`);
-      }
-    } catch (error) {
+      const response = await api.delete(`/student/${id}`);
+      alert(response.data?.message || "Student profile deleted successfully.");
+      setStudents(students.filter(student => student.id !== id));
+    } catch (error: unknown) {
       console.error('Deletion request failed:', error);
-      alert('Could not reach backend servers.');
+      if (api.isAxiosError(error)) {
+        alert(`Deletion Error: ${error.response?.data?.error || error.response?.data?.message || 'Failed to delete record.'}`);
+      } else {
+        alert('Could not reach backend servers.');
+      }
     }
   };
 

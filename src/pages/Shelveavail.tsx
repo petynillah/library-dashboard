@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { GrUpdate } from "react-icons/gr";
 import { MdDelete } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from '../api';
 
 
 interface ShelfItem {
@@ -17,12 +17,9 @@ function Shelveavail(): React.JSX.Element {
   const navigate = useNavigate();
 
   const fetchShelves = async (searchQuery: string = ""): Promise<void> => {
-    const token = localStorage.getItem("jwtToken");
     try {
-      // Attached JWT and encoded search query
-      const response = await axios.get<ShelfItem[]>(`/shelves?search=${encodeURIComponent(searchQuery)}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      // Clean query parameter execution leveraging your centralized baseURL
+      const response = await api.get<ShelfItem[]>(`/shelves?search=${encodeURIComponent(searchQuery)}`);
       setShelves(response.data);
     } catch (err: unknown) {
       console.error("Error fetching shelves:", err);
@@ -40,16 +37,15 @@ function Shelveavail(): React.JSX.Element {
 
   const handleDelete = async (shelfNumber: string): Promise<void> => {
     if (!window.confirm(`Are you sure you want to delete shelf #${shelfNumber}?`)) return;
-    const token = localStorage.getItem("jwtToken");
     try {
-      const response = await axios.delete(`/shelves/${encodeURIComponent(shelfNumber)}`, {
-        headers: { Authorization: `Bearer ${token}` } // Attached JWT
-      });
+      const response = await api.delete(`/shelves/${encodeURIComponent(shelfNumber)}`);
       alert(response.data.message || "Shelf entry removed.");
       fetchShelves(searchInput);
     } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
+      if (api.isAxiosError(err)) {
         alert(err.response?.data?.message || "Failed to remove shelf.");
+      } else {
+        alert("An unexpected network anomaly occurred.");
       }
     }
   };

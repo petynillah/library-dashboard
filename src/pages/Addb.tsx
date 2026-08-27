@@ -45,12 +45,16 @@ function Addb(): React.JSX.Element {
       setFormData({
         book_title: '', author: '', isbn_number: '', category: '', reading_level: '', sub_category: ''
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('API submission failed:', error);
       
-      // Capture detailed error responses sent back from the Express backend
-      const serverMessage = error.response?.data?.message || error.response?.data?.error;
-      alert(`Database Error: ${serverMessage || 'Could not save book record.'}`);
+      // Capture detailed error responses safely leveraging your shared client type-guard
+      if (api.isAxiosError(error)) {
+        const serverMessage = error.response?.data?.message || error.response?.data?.error;
+        alert(`Database Error: ${serverMessage || 'Could not save book record.'}`);
+      } else {
+        alert("An unexpected network exception occurred.");
+      }
     } finally {
       setSubmitting(false);
     }

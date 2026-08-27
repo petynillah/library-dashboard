@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'; 
 import { Link, useLocation } from 'react-router-dom';
 import type { ReturnFormData } from '../types'; 
-import { APP_URLS } from '../Appurl';
+import api from '../api';
 
 interface ActiveLoan {
   student_id: string;
@@ -24,7 +24,6 @@ function Returnborr(): React.JSX.Element {
     return_date: '' 
   }); 
   const [message, setMessage] = useState<string>(''); 
-  const token = localStorage.getItem('jwtToken'); 
 
   // If we arrived here from "Active Out" on the Borrowedb page, the record is
   // already known — populate the form immediately, no search needed.
@@ -48,13 +47,11 @@ function Returnborr(): React.JSX.Element {
 
     setFormData({ student_id: '', student_name: '', book_title: '', isbn_number: '', borrow_date: '', return_date: '' });
     setActiveLoans([]);
+    setMessage('');
 
     try { 
-      const response = await fetch(`${APP_URLS}/api/book/borrowed/${encodeURIComponent(searchId)}`, { 
-        headers: { 'Authorization': `Bearer ${token}` } 
-      }); 
-      const data = await response.json(); 
-      if (!response.ok) throw new Error(data.message || data.error || 'No active lending entry found'); 
+      const response = await api.get(`/book/borrowed/${encodeURIComponent(searchId)}`); 
+      const data = response.data; 
 
       const loans: ActiveLoan[] = Array.isArray(data) ? data : []; 
 
@@ -71,9 +68,13 @@ function Returnborr(): React.JSX.Element {
 
       // Multiple active loans — let staff pick which one to return
       setActiveLoans(loans);
-      setMessage('');
-    } catch (err: any) { 
-      setMessage(err.message); 
+    } catch (err: unknown) { 
+      console.error("Failed to query active student loans:", err);
+      if (api.isAxiosError(err)) {
+        setMessage(err.response?.data?.message || err.response?.data?.error || 'No active lending entry found.');
+      } else {
+        setMessage('Could not query loan verification tables.');
+      }
     } 
   }; 
 
@@ -96,25 +97,21 @@ function Returnborr(): React.JSX.Element {
       setMessage("Please search and select a borrowed book record first.");
       return;
     }
+    setMessage('');
     try { 
-      const response = await fetch(`${APP_URLS}/api/book/borrowed/return`, { 
-        method: 'POST', 
-        headers: { 
-          'Content-Type': 'application/json', 
-          'Authorization': `Bearer ${token}` 
-        }, 
-        body: JSON.stringify(formData) 
-      }); 
-      const data = await response.json(); 
-      if (!response.ok) throw new Error(data.message || data.error || 'Could not commit data'); 
+      const response = await api.post(`/book/borrowed/return`, formData); 
       
-      alert(data.message || "Book successfully marked as returned!"); 
+      alert(response.data?.message || "Book successfully marked as returned!"); 
       setSearchId('');
       setActiveLoans([]);
       setFormData({ student_id: '', student_name: '', book_title: '', isbn_number: '', borrow_date: '', return_date: '' }); 
-      setMessage('');
-    } catch (err: any) { 
-      setMessage(err.message); 
+    } catch (err: unknown) { 
+      console.error("Return transaction submission error:", err);
+      if (api.isAxiosError(err)) {
+        setMessage(err.response?.data?.message || err.response?.data?.error || 'Could not commit transaction.');
+      } else {
+        setMessage('An unexpected architectural network mistake occurred.');
+      }
     } 
   }; 
 
@@ -137,7 +134,7 @@ function Returnborr(): React.JSX.Element {
             required 
           /> 
           <button type="submit" style={{ marginLeft: '10px' }}>Search</button> 
-        </form> 
+        </form>
       </div> 
       {message && (
         <p className="status" style={{ color: 'red', marginTop: '15px', fontWeight: 'bold' }}>
@@ -224,8 +221,6 @@ function Returnborr(): React.JSX.Element {
           </button> 
         </div> 
       </form> 
-
-      
     </div> 
   ); 
 } 

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import axios from "axios";
-
+import api from '../api';
 
 // ==========================================
 // TYPESCRIPT SCHEMAS & INTERFACES
@@ -35,13 +34,6 @@ function Updatecat(): React.JSX.Element {
 
   useEffect(() => {
     const fetchCategoryDetails = async (): Promise<void> => {
-      const token = localStorage.getItem("jwtToken");
-      if (!token) {
-        setErrorMessage("Authentication token missing. Please log out and back in.");
-        setLoading(false);
-        return;
-      }
-
       try {
         setLoading(true);
         setErrorMessage(null);
@@ -50,9 +42,7 @@ function Updatecat(): React.JSX.Element {
           throw new Error("Routing parameter mapping validation failed.");
         }
 
-        const response = await axios.get(`/categories/${category_id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await api.get(`/categories/${category_id}`);
         
         setFormData({
           category_name: response.data?.category_name || "",
@@ -81,30 +71,14 @@ function Updatecat(): React.JSX.Element {
     e.preventDefault();
     setSubmitting(true);
     setErrorMessage(null);
-    
-    const token = localStorage.getItem("jwtToken");
-    if (!token) {
-      setErrorMessage("Authentication token missing. Action rejected.");
-      setSubmitting(false);
-      return;
-    }
 
     try {
-      const response = await axios.put(
-        `/categories/${category_id ?? ''}`, 
-        formData, 
-        {
-          headers: { 
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json"
-          }
-        }
-      );
+      const response = await api.put(`/categories/${category_id ?? ''}`, formData);
       
       alert(response.data?.message || "Reconfiguration sync successful.");
       navigate("/allcat");
     } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
+      if (api.isAxiosError(err)) {
         setErrorMessage(err.response?.data?.message || "Reconfiguration error occurred on the database layer.");
       } else {
         setErrorMessage("An unexpected network anomaly occurred.");

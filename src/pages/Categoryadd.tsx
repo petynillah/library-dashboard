@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import api from '../api';
 
 // ==========================================
 // TYPESCRIPT SCHEMAS & INTERFACES
@@ -39,26 +39,13 @@ function Categoryadd(): React.JSX.Element {
     setLoading(true);
     setErrorMessage(null);
 
-    const token = localStorage.getItem("jwtToken");
-
-    if (!token) {
-      setErrorMessage("Authentication token missing. Please log out and back in.");
-      setLoading(false);
-      return;
-    }
-
     try {
-      const response = await axios.post(`/categories`, formData, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        }
-      });
+      const response = await api.post(`/categories`, formData);
 
       alert(response.data?.message || "Category successfully synchronized.");
       setFormData({ category_name: "", reading_level: "", category_subject: "" });
     } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
+      if (api.isAxiosError(err)) {
         const errorData = err.response?.data;
         const statusCode = err.response?.status;
 

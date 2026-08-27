@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom'; // FIXED: Imported Link Component
+import { Link } from 'react-router-dom';
+import api from '../api';
 import type { BorrowData } from '../types';
 
 
@@ -25,26 +26,20 @@ function Borrowb(): React.JSX.Element {
       return;
     }
     const delayDebounceFn = setTimeout(async () => {
-      const token = localStorage.getItem('jwtToken');
       setLookupStatus('Searching for book...');
       try {
-        const response = await fetch(`/book/details/${encodeURIComponent(borrowForm.isbn_number)}`, {
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (response.ok) {
-          const data = await response.json();
-          const targetBook = Array.isArray(data) ? data[0] : (data.book || data.data || data);
-          if (targetBook && targetBook.book_title) {
-            setBorrowForm(prev => ({ ...prev, book_title: targetBook.book_title }));
-            setLookupStatus('✅ Book details loaded!');
-          } else {
-            setLookupStatus('❌ Book title not found in database.');
-          }
+        const response = await api.get(`/book/details/${encodeURIComponent(borrowForm.isbn_number)}`);
+        const data = response.data;
+        const targetBook = Array.isArray(data) ? data[0] : (data.book || data.data || data);
+        
+        if (targetBook && targetBook.book_title) {
+          setBorrowForm(prev => ({ ...prev, book_title: targetBook.book_title }));
+          setLookupStatus('✅ Book details loaded!');
         } else {
-          setLookupStatus('❌ Unknown ISBN. Enter title manually.');
+          setLookupStatus('❌ Book title not found in database.');
         }
-      } catch (err) {
+      } catch (err: unknown) {
+        console.error("ISBN details verification error:", err);
         setLookupStatus('⚠️ Could not verify ISBN automatically.');
       }
     }, 600);
@@ -59,41 +54,29 @@ function Borrowb(): React.JSX.Element {
 
   const handleBorrowSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    const token = localStorage.getItem('jwtToken');
+    setMessage('');
     try {
-      const response = await fetch(`/book/borrow`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(borrowForm)
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        try {
-          const errorJson = JSON.parse(errorText);
-          throw new Error(errorJson.message || 'Server rejected request');
-        } catch {
-          throw new Error(`Route mismatch or Server error (${response.status}).`);
-        }
-      }
-
-      const data = await response.json();
-      setMessage(data.message || "Book issued successfully!");
+      const response = await api.post(`/book/borrow`, borrowForm);
+      
+      setMessage(response.data?.message || "Book issued successfully!");
       setLookupStatus('');
       const todayStr = new Date().toISOString().split('T')[0];
       setBorrowForm({ student_id: '', student_name: '', book_title: '', isbn_number: '', borrow_date: todayStr });
-    } catch (err: any) {
-      setMessage(err.message);
+    } catch (err: unknown) {
+      console.error("Borrow transaction submission error:", err);
+      if (api.isAxiosError(err)) {
+        setMessage(err.response?.data?.message || 'Server rejected transaction routing request.');
+      } else if (err instanceof Error) {
+        setMessage(err.message);
+      } else {
+        setMessage('An unexpected architectural network error occurred.');
+      }
     }
   };
 
   return (
     <div>
       <h1 className="head1">Borrow Dashboard</h1>
-      {/* FIXED: Changed <a> to <Link> to keep SPA application state from breaking */}
       <div className="roam">
         <Link to="/borrowedbook">view all borrowed books</Link>
         <Link to="/returnborrow">return book</Link>
@@ -125,7 +108,7 @@ function Borrowb(): React.JSX.Element {
         <div className="button" >
           <button type="submit">Issue Book</button>
           {message && (
-            <p style={{ marginTop: '10px', color: message.includes('failed') || message.includes('error') || message.includes('Route') ? 'red' : 'green' }}>
+            <p style={{ marginTop: '10px', color: message.includes('failed') || message.includes('error') || message.includes('rejected') ? 'red' : 'green' }}>
               {message}
             </p>
           )}

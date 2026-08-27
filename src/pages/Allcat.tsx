@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { MdDelete, MdSecurityUpdate } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-
+import api from "../api"; // 👈 shared instance — baseURL + interceptors already configured
 
 // ==========================================
 // TYPESCRIPT SCHEMAS & INTERFACES
@@ -24,13 +24,10 @@ function Allcat(): React.JSX.Element {
   const navigate = useNavigate();
 
   const fetchCategories = async (): Promise<void> => {
-    const token = localStorage.getItem("jwtToken");
     try {
       setLoading(true);
       setErrorMessage(null);
-      const response = await axios.get<CategoryItem[]>("/categories", {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get<CategoryItem[]>("/categories");
       setCategories(Array.isArray(response.data) ? response.data : []);
     } catch (err: unknown) {
       console.error("Error fetching categories:", err);
@@ -47,11 +44,8 @@ function Allcat(): React.JSX.Element {
   // Now targets category_id, the true unique identifier — category_name/category_subject can repeat
   const handleDelete = async (categoryId: number, label: string): Promise<void> => {
     if (!window.confirm(`Are you sure you want to delete "${label}"?`)) return;
-    const token = localStorage.getItem("jwtToken");
     try {
-      const response = await axios.delete(`/categories/${categoryId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.delete(`/categories/${categoryId}`);
       alert(response.data?.message || "Category removed successfully.");
       fetchCategories();
     } catch (err: unknown) {
@@ -70,7 +64,7 @@ function Allcat(): React.JSX.Element {
         <Link to="/addcategory">add category</Link>
         <Link to="/allcat">view all categories</Link>
       </div>
-      
+
       <h2 className="head2">update category</h2>
 
       {errorMessage && <div className="error-banner" style={{ color: "red", padding: "10px" }}>⚠️ {errorMessage}</div>}
@@ -96,21 +90,20 @@ function Allcat(): React.JSX.Element {
                 </tr>
               ) : (
                 categories.map((cat) => (
-                  // category_id as the key — it's guaranteed unique, unlike name/subject
                   <tr key={cat.category_id}>
                     <td>{cat.category_name}</td>
                     <td>{cat.reading_level}</td>
                     <td>{cat.category_subject}</td>
                     <td className="status">
-                      <button 
-                        onClick={() => handleDelete(cat.category_id, cat.category_name)} 
+                      <button
+                        onClick={() => handleDelete(cat.category_id, cat.category_name)}
                         style={{ cursor: 'pointer', marginRight: '8px' }}
                         title="Delete Category"
                       >
                         <MdDelete />
                       </button>
-                      <button 
-                        onClick={() => navigate(`/updatecat/${cat.category_id}`)} 
+                      <button
+                        onClick={() => navigate(`/updatecat/${cat.category_id}`)}
                         style={{ cursor: 'pointer' }}
                         title="Update Category"
                       >

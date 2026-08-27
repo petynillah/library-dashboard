@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { IoAddCircleOutline } from "react-icons/io5";
-import axios from "axios";
-import { APP_URLS } from "../Appurl";
+import api from '../api';
 
 interface ShelfForm {
   shelf_number: string;
@@ -27,11 +26,8 @@ function Addshelf(): React.JSX.Element {
   // book_category must match an existing category_subject, so pull the live list
   useEffect(() => {
     const fetchCategories = async (): Promise<void> => {
-      const token = localStorage.getItem("jwtToken");
       try {
-        const response = await axios.get<CategoryOption[]>(`/categories`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await api.get<CategoryOption[]>(`/categories`);
 
         // SAFEGUARD: Ensure data is an array before executing filtering methods
         const rawData = response.data;
@@ -63,16 +59,15 @@ function Addshelf(): React.JSX.Element {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    const token = localStorage.getItem("jwtToken");
     try {
-      const response = await axios.post(`${APP_URLS}/api/shelves`, formData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.post(`/shelves`, formData);
       alert(response.data.message || "Shelf added successfully!");
       setFormData({ shelf_number: "", shelf_category: "", book_category: "" });
     } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
+      if (api.isAxiosError(err)) {
         alert(err.response?.data?.message || "An error occurred.");
+      } else {
+        alert("An unexpected network anomaly occurred.");
       }
     }
   };

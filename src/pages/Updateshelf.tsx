@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { IoAddCircleOutline } from "react-icons/io5";
-import axios from "axios";
+import api from '../api';
 
 
 interface UpdateShelfForm {
@@ -30,11 +30,8 @@ function Updateshelf(): React.JSX.Element {
 
   useEffect(() => {
     const fetchCategories = async (): Promise<void> => {
-      const token = localStorage.getItem("jwtToken");
       try {
-        const response = await axios.get<CategoryOption[]>(`/categories`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await api.get<CategoryOption[]>(`/categories`);
         const seen = new Set<string>();
         const unique = response.data.filter((cat) => {
           if (seen.has(cat.category_subject)) return false;
@@ -53,12 +50,9 @@ function Updateshelf(): React.JSX.Element {
 
   useEffect(() => {
     const fetchShelfDetails = async (): Promise<void> => {
-      const token = localStorage.getItem("jwtToken");
       try {
         setLoading(true);
-        const response = await axios.get(`/shelves/${encodeURIComponent(shelf_number || '')}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await api.get(`/shelves/${encodeURIComponent(shelf_number || '')}`);
         setFormData({
           shelf_number: response.data.shelf_number,
           shelf_category: response.data.shelf_category,
@@ -83,17 +77,16 @@ function Updateshelf(): React.JSX.Element {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    const token = localStorage.getItem("jwtToken");
     try {
       // shelf_number in the URL stays the lookup key; formData.shelf_number carries the (possibly renamed) value
-      const response = await axios.put(`/shelves/${encodeURIComponent(shelf_number || '')}`, formData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.put(`/shelves/${encodeURIComponent(shelf_number || '')}`, formData);
       alert(response.data.message || "Shelf reconfigured successfully.");
       navigate("/shelfavailable");
     } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
+      if (api.isAxiosError(err)) {
         alert(err.response?.data?.message || "Adjustment error.");
+      } else {
+        alert("An unexpected network anomaly occurred.");
       }
     }
   };

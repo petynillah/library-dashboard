@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'; 
 import { useSearchParams, useNavigate } from 'react-router-dom'; 
 import type { BookData } from '../types'; 
-import axios from 'axios'; // 1. Added Axios import
 import api from '../api';
 
 function Updateb(): React.JSX.Element { 
@@ -23,14 +22,9 @@ function Updateb(): React.JSX.Element {
     if (!isbnParam) return; 
 
     const fetchBookDetails = async (): Promise<void> => { 
-      const token = localStorage.getItem('jwtToken'); 
       try { 
-        // 2. Converted native fetch to Axios GET
-        const response = await api.get(`/book/details/${encodeURIComponent(isbnParam)}`, { 
-          headers: { 
-            'Authorization': `Bearer ${token}` 
-          }
-        }); 
+        // Converted to Axios GET using shared api instance without manual headers
+        const response = await api.get(`/book/details/${encodeURIComponent(isbnParam)}`); 
 
         // Axios natively parses JSON data into response.data
         const rawData = response.data; 
@@ -57,23 +51,17 @@ function Updateb(): React.JSX.Element {
 
   const handleUpdate = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => { 
     e.preventDefault(); 
-    const token = localStorage.getItem('jwtToken'); 
     try { 
-      // 3. Converted native fetch to Axios PUT
-      const response = await api.put(`/book/update/${encodeURIComponent(isbnParam)}`, formData, { 
-        headers: { 
-          'Content-Type': 'application/json', 
-          'Authorization': `Bearer ${token}` 
-        }
-      }); 
+      // Converted to Axios PUT using shared api instance without manual headers
+      const response = await api.put(`/book/update/${encodeURIComponent(isbnParam)}`, formData); 
 
       alert(response.data?.message || "Book updated successfully!"); 
       navigate('/availablebk'); 
     } catch (error: unknown) { 
       console.error('Update request failed:', error); 
       
-      // Axios error data validation mapping
-      if (axios.isAxiosError(error)) {
+      // Handle custom instance specific error responses safely
+      if (api.isAxiosError(error)) {
         const serverMessage = error.response?.data?.error || error.response?.data?.message;
         alert(`Error: ${serverMessage || 'Failed to update'}`);
       } else {
@@ -86,21 +74,16 @@ function Updateb(): React.JSX.Element {
     if (!isbnParam) return; 
     if (!window.confirm("Are you sure you want to permanently delete this book?")) return; 
 
-    const token = localStorage.getItem('jwtToken'); 
     try { 
-      // 4. Converted native fetch to Axios DELETE
-      const response = await api.delete(`/book/delete/${encodeURIComponent(isbnParam)}`, { 
-        headers: { 
-          'Authorization': `Bearer ${token}` 
-        } 
-      }); 
+      // Converted to Axios DELETE using shared api instance without manual headers
+      const response = await api.delete(`/book/delete/${encodeURIComponent(isbnParam)}`); 
 
       alert(response.data?.message || "Book successfully removed."); 
       navigate('/availablebk'); 
     } catch (error: unknown) { 
       console.error('Delete request failed:', error); 
       
-      if (axios.isAxiosError(error)) {
+      if (api.isAxiosError(error)) {
         const serverMessage = error.response?.data?.error || error.response?.data?.message;
         alert(`Error: ${serverMessage || 'Failed to delete'}`);
       } else {

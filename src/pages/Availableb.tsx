@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { BookData } from '../types';
 import { Link } from 'react-router-dom';
-import axios from 'axios'; // 1. Added Axios import
-import api from '../api' // 2. Added APP_URLS base string
-
+import api from '../api';
 
 function Availableb(): React.JSX.Element {
   const [books, setBooks] = useState<BookData[]>([]);
@@ -11,11 +9,8 @@ function Availableb(): React.JSX.Element {
 
   const fetchBooks = async (search: string = ''): Promise<void> => {
     try {
-      // 2. USE THE API INSTANCE: 
-      // Replace "axios.get" or "fetch" with "api.get"
-      // Remove any manual authorization headers (the interceptor does it now!)
+      // Clean query parameter execution leveraging your centralized baseURL
       const response = await api.get(`/book/all?search=${encodeURIComponent(search)}`);
-
       setBooks(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Failed to load books:', error);
@@ -27,8 +22,6 @@ function Availableb(): React.JSX.Element {
     fetchBooks();
   }, []);
 
-  // ... keep the rest of your handleDelete and table markup code the exact same
-
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     fetchBooks(searchQuery);
@@ -36,12 +29,9 @@ function Availableb(): React.JSX.Element {
 
   const handleDelete = async (isbn: string): Promise<void> => {
     if (!window.confirm("Are you sure you want to delete this book?")) return;
-    const token = localStorage.getItem('jwtToken');
     try {
-      // 4. Converted fetch to Axios DELETE using APP_URLS base path
-      const response = await api.delete(`/book/delete/${isbn}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      // Converted delete call to use the shared api instance without manual headers
+      const response = await api.delete(`/book/delete/${isbn}`);
 
       alert(response.data?.message || "Book deleted");
       fetchBooks(searchQuery); 
@@ -49,8 +39,8 @@ function Availableb(): React.JSX.Element {
     } catch (error: unknown) {
       console.error('Delete failed:', error);
       
-      // 5. Handle Axios specific error payload mapping
-      if (axios.isAxiosError(error)) {
+      // Handle custom instance specific error responses safely
+      if (api.isAxiosError(error)) {
         const serverMessage = error.response?.data?.error || error.response?.data?.message;
         alert(`Error: ${serverMessage || 'Unauthorized delete request'}`);
       } else {

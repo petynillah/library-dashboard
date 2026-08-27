@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-
+import api from '../api';
 
 interface StudentData {
   name: string;
@@ -25,29 +25,24 @@ function Updatestudent(): React.JSX.Element {
 
   useEffect(() => {
     const fetchStudentDetails = async () => {
-      const token = localStorage.getItem('jwtToken');
-      if (!token || !id) return;
+      if (!id) return;
 
       try {
         // Corrected path: /student/:id, not /students/:id
-        const response = await fetch(`/student/${id}`, {
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${token}` }
+        const response = await api.get(`/student/${id}`);
+        const data = response.data;
+        
+        // Backend wraps the record in { success, data }
+        const student = data.data;
+        setFormData({
+          name: student?.name || '',
+          gender: student?.gender || '',
+          age: student?.age != null ? String(student.age) : '',
+          educationLevel: student?.education_level || '',
+          institution: student?.institution_name || '',
+          password: '' // never pre-filled — only sent if the user chooses to change it
         });
-        const data = await response.json();
-        if (response.ok) {
-          // Backend wraps the record in { success, data }
-          const student = data.data;
-          setFormData({
-            name: student?.name || '',
-            gender: student?.gender || '',
-            age: student?.age != null ? String(student.age) : '',
-            educationLevel: student?.education_level || '',
-            institution: student?.institution_name || '',
-            password: '' // never pre-filled — only sent if the user chooses to change it
-          });
-        }
-      } catch (err) {
+      } catch (err: unknown) {
         console.error('Failed to load profile context:', err);
       }
     };
@@ -60,11 +55,6 @@ function Updatestudent(): React.JSX.Element {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
-    const token = localStorage.getItem('jwtToken');
-    if (!token) {
-      alert("Authentication token missing.");
-      return;
-    }
 
     // Mapped to backend field names; password only included if the staff member typed a new one
     const payload: Record<string, string> = {
@@ -80,24 +70,18 @@ function Updatestudent(): React.JSX.Element {
 
     try {
       // Corrected path: /student/:id, not /students/:id
-      const response = await fetch(`/student/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
-      const data = await response.json();
+      const response = await api.put(`/student/${id}`, payload);
 
-      if (response.ok) {
-        alert(data.message || 'Student records updated successfully!');
-        navigate('/allstudents');
+      alert(response.data?.message || 'Student records updated successfully!');
+      navigate('/allstudents');
+    } catch (error: unknown) {
+      console.error("Student modification syncing failure:", error);
+      if (api.isAxiosError(error)) {
+        const fallbackMsg = 'Failed to modify student record file.';
+        alert(`Update Error: ${error.response?.data?.error || error.response?.data?.message || fallbackMsg}`);
       } else {
-        alert(`Update Error: ${data.error || data.message || 'Failed to modify file.'}`);
+        alert('Could not synchronize updates with backend servers.');
       }
-    } catch (error) {
-      alert('Could not synchronize updates with backend servers.');
     }
   };
 
