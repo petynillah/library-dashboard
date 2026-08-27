@@ -23,7 +23,7 @@ import SSOGuard from './SSOGuard'
 function App() {
   return (
     <>
-      <BrowserRouter>
+      <BrowserRouter basename='/dashboard/'>
       <div className='container'>
         <Navbar/>
         <div className='dashboard'>
