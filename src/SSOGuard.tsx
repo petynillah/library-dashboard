@@ -28,7 +28,7 @@ const hasExchanged = useRef(false);
       try {
         const backendURL = import.meta.env.VITE_API_URL || '/api';
         
-        const response = await fetch(`${backendURL}/api/auth/exchange-sso-ticket`, {
+        const response = await fetch(`${backendURL}/auth/exchange-sso-ticket`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ticket })
