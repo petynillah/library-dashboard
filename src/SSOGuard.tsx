@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSearchParams, Outlet } from 'react-router-dom'; // 👈 1. Added Outlet here
 
 // 👈 2. REMOVED the children interface completely
@@ -7,7 +7,7 @@ function SSOGuard(): React.JSX.Element { // 👈 3. REMOVED { children } from he
   const [searchParams, setSearchParams] = useSearchParams();
   const [isVerifying, setIsVerifying] = useState<boolean>(true);
   
-
+const hasExchanged = useRef(false);
   useEffect(() => {
     const ticket = searchParams.get('ticket');
     
@@ -21,6 +21,8 @@ function SSOGuard(): React.JSX.Element { // 👈 3. REMOVED { children } from he
       }
       return;
     }
+    if (hasExchanged.current) return; // prevent double-fire
+  hasExchanged.current = true;
 
     const finalizeSessionExchange = async () => {
       try {
