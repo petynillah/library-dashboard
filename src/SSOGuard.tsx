@@ -24,7 +24,7 @@ function SSOGuard(): React.JSX.Element { // 👈 3. REMOVED { children } from he
 
     const finalizeSessionExchange = async () => {
       try {
-        const backendURL = import.meta.env.VITE_API_URL || 'https://onrender.com';
+        const backendURL = import.meta.env.VITE_API_URL || '/api';
         
         const response = await fetch(`${backendURL}/auth/exchange-sso-ticket`, {
           method: 'POST',
