@@ -14,7 +14,7 @@ function Availableb(): React.JSX.Element {
       // 2. USE THE API INSTANCE: 
       // Replace "axios.get" or "fetch" with "api.get"
       // Remove any manual authorization headers (the interceptor does it now!)
-      const response = await api.get(`/api/book/all?search=${encodeURIComponent(search)}`);
+      const response = await api.get(`/book/all?search=${encodeURIComponent(search)}`);
 
       setBooks(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
@@ -39,7 +39,7 @@ function Availableb(): React.JSX.Element {
     const token = localStorage.getItem('jwtToken');
     try {
       // 4. Converted fetch to Axios DELETE using APP_URLS base path
-      const response = await api.delete(`/api/book/delete/${isbn}`, {
+      const response = await api.delete(`/book/delete/${isbn}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 

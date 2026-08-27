@@ -46,21 +46,21 @@ export const categoryService = {
   // Fetch all categories for your view
   getAll: async () => {
     // 3. Changed "axios" to "api"
-    const response = await api.get("/api/categories");
+    const response = await api.get("/categories");
     return response.data;
   },
 
   // Create a new category
   create: async (data: CategoryForm) => {
     // 3. Changed "axios" to "api"
-    const response = await api.post("/api/categories", data);
+    const response = await api.post("/categories", data);
     return response.data;
   },
 
   // Delete a category
   delete: async (id: string | number) => {
     // 3. Changed "axios" to "api"
-    const response = await api.delete(`/api/categories/${id}`);
+    const response = await api.delete(`/categories/${id}`);
     return response.data;
   },
 };
