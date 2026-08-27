@@ -29,7 +29,7 @@ function Addshelf(): React.JSX.Element {
     const fetchCategories = async (): Promise<void> => {
       const token = localStorage.getItem("jwtToken");
       try {
-        const response = await axios.get<CategoryOption[]>(`${APP_URLS}/api/categories`, {
+        const response = await axios.get<CategoryOption[]>(`/categories`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 

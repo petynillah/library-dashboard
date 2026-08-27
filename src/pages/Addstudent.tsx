@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios'; // 1. Added Axios import
-import { APP_URLS } from '../Appurl'; // 2. Added APP_URLS import (adjust path if needed)
+
 
 // Define explicit local types in line with your standard practices
 interface StudentData {
@@ -49,7 +49,7 @@ function Addstudent(): React.JSX.Element {
 
     try {
       // 3. Converted native fetch to an Axios POST call using APP_URLS string
-      const response = await axios.post(`${APP_URLS}/api/student/register`, payload, {
+      const response = await axios.post(`/student/register`, payload, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`

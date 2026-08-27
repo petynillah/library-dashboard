@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'; // FIXED: Imported Link Component
 import type { BorrowData } from '../types';
-import { APP_URLS } from '../Appurl';
+
 
 function Borrowb(): React.JSX.Element {
   const [borrowForm, setBorrowForm] = useState<BorrowData>({
@@ -28,7 +28,7 @@ function Borrowb(): React.JSX.Element {
       const token = localStorage.getItem('jwtToken');
       setLookupStatus('Searching for book...');
       try {
-        const response = await fetch(`${APP_URLS}/api/book/details/${encodeURIComponent(borrowForm.isbn_number)}`, {
+        const response = await fetch(`/book/details/${encodeURIComponent(borrowForm.isbn_number)}`, {
           method: 'GET',
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -61,7 +61,7 @@ function Borrowb(): React.JSX.Element {
     e.preventDefault();
     const token = localStorage.getItem('jwtToken');
     try {
-      const response = await fetch(`${APP_URLS}/api/book/borrow`, {
+      const response = await fetch(`/book/borrow`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

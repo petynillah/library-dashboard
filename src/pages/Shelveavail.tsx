@@ -3,7 +3,7 @@ import { GrUpdate } from "react-icons/gr";
 import { MdDelete } from "react-icons/md";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { APP_URLS } from "../Appurl";
+
 
 interface ShelfItem {
   shelf_number: string;
@@ -20,7 +20,7 @@ function Shelveavail(): React.JSX.Element {
     const token = localStorage.getItem("jwtToken");
     try {
       // Attached JWT and encoded search query
-      const response = await axios.get<ShelfItem[]>(`${APP_URLS}/api/shelves?search=${encodeURIComponent(searchQuery)}`, {
+      const response = await axios.get<ShelfItem[]>(`/shelves?search=${encodeURIComponent(searchQuery)}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setShelves(response.data);
@@ -42,7 +42,7 @@ function Shelveavail(): React.JSX.Element {
     if (!window.confirm(`Are you sure you want to delete shelf #${shelfNumber}?`)) return;
     const token = localStorage.getItem("jwtToken");
     try {
-      const response = await axios.delete(`${APP_URLS}/api/shelves/${encodeURIComponent(shelfNumber)}`, {
+      const response = await axios.delete(`/shelves/${encodeURIComponent(shelfNumber)}`, {
         headers: { Authorization: `Bearer ${token}` } // Attached JWT
       });
       alert(response.data.message || "Shelf entry removed.");

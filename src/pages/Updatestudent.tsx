@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { APP_URLS } from '../Appurl';
+
 
 interface StudentData {
   name: string;
@@ -30,7 +30,7 @@ function Updatestudent(): React.JSX.Element {
 
       try {
         // Corrected path: /student/:id, not /students/:id
-        const response = await fetch(`${APP_URLS}/api/student/${id}`, {
+        const response = await fetch(`/student/${id}`, {
           method: 'GET',
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -80,7 +80,7 @@ function Updatestudent(): React.JSX.Element {
 
     try {
       // Corrected path: /student/:id, not /students/:id
-      const response = await fetch(`${APP_URLS}/api/student/${id}`, {
+      const response = await fetch(`/student/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -64,6 +64,7 @@ function Availableb(): React.JSX.Element {
       <h1 className="head1">Book Dashboard</h1>
       <div className="roam">
         <Link to='/addbook'>add book</Link>
+        <Link to="/availablebk">Show all books</Link>
       </div>
       <div className="search">
         <form className="search-bar" onSubmit={handleSearchSubmit}>
