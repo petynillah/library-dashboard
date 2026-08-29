@@ -27,6 +27,11 @@ function Availableb(): React.JSX.Element {
     fetchBooks(searchQuery);
   };
 
+  const handleResetSearch = (): void => {
+    setSearchQuery('');
+    fetchBooks('');
+  };
+
   const handleDelete = async (isbn: string): Promise<void> => {
     if (!window.confirm("Are you sure you want to delete this book?")) return;
     try {
@@ -54,13 +59,13 @@ function Availableb(): React.JSX.Element {
       <h1 className="head1">Book Dashboard</h1>
       <div className="roam">
         <Link to='/addbook'>add book</Link>
-        <Link to="/availablebk">Show all books</Link>
       </div>
       <div className="search">
         <form className="search-bar" onSubmit={handleSearchSubmit}>
           <label>Search for a book</label>
           <input type="text" value={searchQuery} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)} />
           <button type="submit">Search</button>
+          <button type="button" onClick={handleResetSearch} className="linkb">Show all books</button>
         </form>
       </div>
       <h2 className="head2">All Books</h2>
