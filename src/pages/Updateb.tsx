@@ -123,7 +123,7 @@ function Updateb(): React.JSX.Element {
             <input type="text" name="sub_category" value={formData.sub_category || ''} onChange={handleChange} /> 
           </div> 
           <div className="button"> 
-            <button type="submit">Update</button> 
+            <button type="submit" >Update</button> 
             <button type="button" onClick={handleDelete} style={{ backgroundColor: 'red', color: 'white' }}>Delete</button> 
           </div> 
         </form> 
