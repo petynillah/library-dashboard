@@ -128,6 +128,9 @@
     font-weight: bold;
     cursor: pointer;
 }
+.search-bar :active{
+    background-color: #56646e;
+}
 .head2{
     color: black;
     text-decoration: underline;
