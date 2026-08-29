@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import api from '../api';
 import type { BorrowData } from '../types';
 
-
 function Borrowb(): React.JSX.Element {
   const [borrowForm, setBorrowForm] = useState<BorrowData>({
     student_id: '',
@@ -13,6 +12,7 @@ function Borrowb(): React.JSX.Element {
     borrow_date: ''
   });
   const [message, setMessage] = useState<string>('');
+  const [isError, setIsError] = useState<boolean>(false);
   const [lookupStatus, setLookupStatus] = useState<string>('');
 
   useEffect(() => {
@@ -55,17 +55,22 @@ function Borrowb(): React.JSX.Element {
   const handleBorrowSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setMessage('');
+    setIsError(false);
+    
     try {
       const response = await api.post(`/book/borrow`, borrowForm);
       
       setMessage(response.data?.message || "Book issued successfully!");
+      setIsError(false);
       setLookupStatus('');
       const todayStr = new Date().toISOString().split('T')[0];
       setBorrowForm({ student_id: '', student_name: '', book_title: '', isbn_number: '', borrow_date: todayStr });
     } catch (err: unknown) {
       console.error("Borrow transaction submission error:", err);
+      setIsError(true);
       if (api.isAxiosError(err)) {
-        setMessage(err.response?.data?.message || 'Server rejected transaction routing request.');
+        const serverReason = err.response?.data?.message || err.response?.data?.error || err.response?.data;
+        setMessage(typeof serverReason === 'string' ? serverReason : 'Server rejected the borrow request.');
       } else if (err instanceof Error) {
         setMessage(err.message);
       } else {
@@ -108,9 +113,17 @@ function Borrowb(): React.JSX.Element {
         <div className="button" >
           <button type="submit">Issue Book</button>
           {message && (
-            <p style={{ marginTop: '10px', color: message.includes('failed') || message.includes('error') || message.includes('rejected') ? 'red' : 'green' }}>
+            <div style={{ 
+              marginTop: '15px', 
+              padding: '10px 14px', 
+              borderRadius: '4px', 
+              backgroundColor: isError ? '#ffebee' : '#e8f5e9', 
+              color: isError ? '#c62828' : '#2e7d32',
+              border: `1px solid ${isError ? '#ef9a9a' : '#a5d6a7'}`,
+              fontWeight: isError ? 'bold' : 'normal'
+            }}>
               {message}
-            </p>
+            </div>
           )}
         </div>
       </form>

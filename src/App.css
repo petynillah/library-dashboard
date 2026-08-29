@@ -230,6 +230,11 @@
     font-size: 20px;
     font-weight: bolder;
 }
+
+.roam :active{
+    background-color: #AC7F5E;
+
+}
 .addc{
     display: flex;
     flex-direction: row;
