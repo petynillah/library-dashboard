@@ -274,6 +274,7 @@
     border: none;
     cursor: pointer;
 }
+
 .linkb{
     color: #AC7F5E;
     background-color: white;
@@ -282,6 +283,9 @@
     font-size: 14px;
     font-weight: bold;
     text-decoration: none;
+}
+.linkb :active{
+    color: #8ECDF7;
 }
 .table-part table, th, td{
     border: 2px solid #8ECDF7;

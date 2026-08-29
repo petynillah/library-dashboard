@@ -97,7 +97,7 @@ function Allcat(): React.JSX.Element {
                     <td className="status">
                       <button
                         onClick={() => handleDelete(cat.category_id, cat.category_name)}
-                        style={{ cursor: 'pointer', marginRight: '8px' }}
+                        style={{ cursor: 'pointer', marginRight: '8px'}}
                         title="Delete Category"
                       >
                         <MdDelete />

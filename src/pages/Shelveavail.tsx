@@ -35,6 +35,11 @@ function Shelveavail(): React.JSX.Element {
     fetchShelves(searchInput);
   };
 
+  const handleResetSearch = (): void => {
+    setSearchInput("");
+    fetchShelves("");
+  };
+
   const handleDelete = async (shelfNumber: string): Promise<void> => {
     if (!window.confirm(`Are you sure you want to delete shelf #${shelfNumber}?`)) return;
     try {
@@ -55,13 +60,13 @@ function Shelveavail(): React.JSX.Element {
       <h1 className="head1">shelving dashboard</h1>
       <div className="roam" style={{ marginBottom: "20px" }}>
         <Link to="/addshelf">add shelf</Link>
-        <Link to="/shelfavailable">view available shelves</Link>
       </div>
       <div className="search">
         <form className="search-bar" onSubmit={handleSearchSubmit}>
           <label htmlFor="search-input" style={{ marginRight: '10px' }}>Search for a specific shelf</label>
           <input id="search-input" type="text" value={searchInput} onChange={(e) => setSearchInput(e.target.value)} placeholder="Search shelves..." />
           <button type="submit" style={{ marginLeft: "8px", cursor: "pointer" }}>Search</button>
+          <button type="button" onClick={handleResetSearch} style={{ marginLeft: "8px", cursor: "pointer" }}>Show all shelves</button>
         </form>
       </div>
       <h2 className="head2">available shelves</h2>
