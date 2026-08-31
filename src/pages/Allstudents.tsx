@@ -44,9 +44,8 @@ function Allstudents(): React.JSX.Element {
     fetchStudents(searchQuery.trim());
   };
 
-  // "view all students" clears any active filter and re-pulls fresh data —
-  // needed because a Link to the page you're already on won't remount/refetch on its own.
-  const handleViewAllClick = (): void => {
+  // Clears any active filter and re-pulls the full unfiltered list
+  const handleResetSearch = (): void => {
     setSearchQuery('');
     fetchStudents('');
   };
@@ -72,7 +71,6 @@ function Allstudents(): React.JSX.Element {
     <div>
       <h1 className="head1">students dashboard</h1>
       <div className="roam">
-        <Link to="/allstudents" onClick={handleViewAllClick}>view all students</Link>
         <Link to="/addstudent">add student</Link>
       </div>
     
@@ -84,8 +82,9 @@ function Allstudents(): React.JSX.Element {
             value={searchQuery} 
             onChange={(e) => setSearchQuery(e.target.value)} 
             placeholder="Type search items..."
-          /> <button type="submit">Search</button>
-         
+          /> 
+          <button type="submit">Search</button>
+          <button type="button" onClick={handleResetSearch}>view all students</button>
         </form>
       </div>
 
