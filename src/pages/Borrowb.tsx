@@ -241,22 +241,7 @@ function Borrowb(): React.JSX.Element {
             required
           />
           {showNameSuggestions && nameSuggestions.length > 0 && (
-            <ul style={{
-              position: 'absolute',
-              top: '100%',
-              left: 0,
-              right: 0,
-              zIndex: 10,
-              background: '#fff',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              listStyle: 'none',
-              margin: '2px 0 0 0',
-              padding: '4px 0',
-              maxHeight: '200px',
-              overflowY: 'auto',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
-            }}>
+            <ul className="titleSugestion" >
               {nameSuggestions.map((student) => (
                 <li
                   key={student.id}
@@ -292,22 +277,7 @@ function Borrowb(): React.JSX.Element {
             required
           />
           {showTitleSuggestions && titleSuggestions.length > 0 && (
-            <ul style={{
-              position: 'absolute',
-              top: '100%',
-              left: 0,
-              right: 0,
-              zIndex: 10,
-              background: '#fff',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-              listStyle: 'none',
-              margin: '2px 0 0 0',
-              padding: '4px 0',
-              maxHeight: '200px',
-              overflowY: 'auto',
-              boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
-            }}>
+            <ul className="titleSugestion">
               {titleSuggestions.map((book) => (
                 <li
                   key={book.isbn_number}

@@ -304,3 +304,19 @@
     text-align: center;
     margin-top: 10px;
 }
+.titleSugestion{
+     position: absolute;
+              top: 100%;
+              left: 0;
+              right: 0;
+              z-index:10;
+              background: #fff;
+              border: 1px solid #ccc;
+              border-radius: 4px;
+              list-style: none;
+              margin: 2px 0 0 0;
+              padding: 4px 0;
+              max-height: 200px;
+              overflow-y: auto;
+              box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
